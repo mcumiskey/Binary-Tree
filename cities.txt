@@ -1,0 +1,12 @@
+Chicago,41,-87
+Houston,25,-95
+Philadelphia,39,-75
+Pheonix,33,-112
+Dallas,32,-96
+Austin,30,-97
+Indianapolis,39,-86
+Indianapolis,39,-86
+Jacksonville,30,-81
+Boston,42,-71
+Baltimore,39,-76
+Portland,45,-122
