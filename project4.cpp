@@ -286,6 +286,7 @@ int main(int argc, char* argv[]){
             cout << "File: " << filename << " opened sucessfully." << endl;
             cout << "- - - - - - - - - - - - - - - - - - - - - - - - - - - " << endl;
             cityDirectory = run(infile);
+            infile.close();
         } else {
             cout << "- - - - - - - - - - - - - - - - - - - - - - - - - - - " << endl;
             cout << "Error - couldn't process " << filename << endl;
@@ -301,6 +302,7 @@ int main(int argc, char* argv[]){
             cout << "File: " << filename << " opened sucessfully." << endl;
             cout << "- - - - - - - - - - - - - - - - - - - - - - - - - - - " << endl;
             cityDirectory = run(argfile);
+            argfile.close();
         } else {
             cout << "- - - - - - - - - - - - - - - - - - - - - - - - - - - " << endl;
             cout << "Error - couldn't process " << filename << endl;
@@ -336,7 +338,7 @@ int main(int argc, char* argv[]){
     }
     cout << "End of run. " << endl;
     cout << "- - - - - - - - - - - - - - - - - - - - - - - - - - - " << endl;
-
+    cityDirectory.clearTree(cityDirectory.root);
 
     return 0;
 }
