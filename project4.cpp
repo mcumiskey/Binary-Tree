@@ -27,6 +27,7 @@ Postconditions: none
 
 using namespace std;
 
+
 class city_object {
     public:
     int xCoordinate;
@@ -73,47 +74,64 @@ class tree {
         root = nullptr;
         cout << "NULL TREE" << endl;
     }
-
+    ~tree(){ }
     tree(city_object data){
         root = new node(data);
         cout << "ROOT: ";
         data.display();
         cout << " root val = " << root->city.cityName << endl; 
     }
-
     //search for a city name in the BST, recursive
-    bool searchFor(node * recusiveRoot, string name){
-        if(recusiveRoot == NULL){
+    bool searchFor(node * recursiveNode, string name){
+        if(recursiveNode == NULL){
             cout << "No record found for " << name << endl;
             return false;
         }
-        if(recusiveRoot->city.cityName == name){
-            cout << "Record found for " << name << " at " << recusiveRoot->city.xCoordinate << " " << recusiveRoot->city.yCoordinate << endl;
+        if(recursiveNode->city.cityName == name){
+            cout << "Record found for " << name << " at " << recursiveNode->city.xCoordinate << " " << recursiveNode->city.yCoordinate << endl;
             return true;
         } 
-        if(recusiveRoot->city.cityName < name){
-            return searchFor(recusiveRoot->right, name);
+        if(recursiveNode->city.cityName < name){ //go right
+            return searchFor(recursiveNode->right, name);
         }
-        if(recusiveRoot->city.cityName > name){
-            return searchFor(recusiveRoot->left, name);
+        if(recursiveNode->city.cityName > name){    //go left
+            return searchFor(recursiveNode->left, name);
         } 
     }
-    // bool searchFor(node * recusiveRoot, int x, int y){
-    //     if(recusiveRoot == NULL){
-    //         cout << "No city found at " << x << endl;
-    //         return false;
-    //     }
-    //     if((recusiveRoot->city.xCoordinate == x) && (recusiveRoot->city.yCoordinate == y)){
-    //         cout << "City with coordinates: " << x << " , " << y << " - " << recusiveRoot.name << endl;
-    //         return true;
-    //     } 
-    //     if(recusiveRoot->cityName < y){
-    //         return searchFor(recusiveRoot->right, name);
-    //     }
-    //     if(recusiveRoot->cityName > x){
-    //         return searchFor(recusiveRoot->left, name);
-    //     } 
-    // }
+
+    //search for coordinates in the BST, recursive
+    int searchFor(node * recursiveNode, int x, int y){
+        if (recursiveNode == NULL){ //end case
+            return false; 
+        } 
+        //go left
+        searchFor(recursiveNode->left, x, y); 
+    
+        //found!
+        if((recursiveNode->city.xCoordinate == x) && (recursiveNode->city.yCoordinate == y)){
+            cout << "Record found for " << x << ", " << y << " at " << recursiveNode->city.cityName << endl;
+            return true;
+        }
+    
+        //go right
+        searchFor(recursiveNode->right, x, y); 
+    }
+
+    node * returnSearch(node * recursiveNode, int x, int y){
+        if (recursiveNode == NULL){ //end case
+            return NULL; 
+        } 
+        //go left
+        returnSearch(recursiveNode->left, x, y); 
+    
+        //found!
+        if((recursiveNode->city.xCoordinate == x) && (recursiveNode->city.yCoordinate == y)){
+            return recursiveNode;
+        }
+    
+        //go right
+        returnSearch(recursiveNode->right, x, y); 
+    }
 
     void add (city_object data) {
         node *next = root;
@@ -155,29 +173,84 @@ class tree {
             }
         }
     }
+   //Given a binary search tree and a name, this function deletes the node and returns the new root
+   node * deleteNode(node * recursiveNode, string name) { 
+    if (recursiveNode == NULL){     // end case 
+        return recursiveNode; 
+    } 
 
-    // void delete (string name){
+    if(name < recursiveNode->city.cityName){                            //if the thing you want to delete is smaller than your root, go left
+        recursiveNode->left = deleteNode(recursiveNode->left, name);
+    } else if (name > recursiveNode->city.cityName){                     //thing is bigger than current, go right 
+        recursiveNode->right = deleteNode(recursiveNode->right, name);
+    } else {                                                             //if neither of the above... delete node!
+         //node with only one child or no child 
+        if (recursiveNode->left == NULL){
+            node *temp = recursiveNode->right; 
+            free(recursiveNode); 
+            return temp; 
+        } else if (recursiveNode->right == NULL) { 
+            node *temp = recursiveNode->left; 
+            free(recursiveNode); 
+            return temp; 
 
-    // }
+        //node with two children
+         } else {
+             node * temp = smallestNode(recursiveNode->right); //find successor
+             recursiveNode->city = temp->city;                 //copy successor's contents upward (keeping other links unchanged)
+             recursiveNode->right = deleteNode(recursiveNode->right, name); //delete the unworthy 
+         }
+    }
+    return recursiveNode;
+   }
 
-    // void delete (int x, int y) {
+   //Given a binary search tree and coordinates, this function deletes the node with the matching coordinates
+    void deleteNode(node * recursiveNode, int x, int y){
+        //uses the search in order to find the name of the city, and deletes using existing code
+        deleteNode(recursiveNode, returnSearch(recursiveNode, x, y)->city.cityName);
+    }
 
-    // }
+        
+    //finds the leftmost node, starting at the node given 
+    node * smallestNode (node * recursiveNode){ 
+        node * current = recursiveNode; 
+    
+        // loop down to find the leftmost child with no left children 
+        while (current->left != NULL){
+            current = current->left; 
+        }  
+        return current; 
+    }  
+
+    void clearTree(node *recursiveNode){
+         if (recursiveNode == NULL){ //end case
+            return; 
+        } 
+        //go left
+        clearTree(recursiveNode->left); 
+    
+        //process current node
+        deleteNode(recursiveNode, recursiveNode->city.cityName);
+    
+        //go right
+        clearTree(recursiveNode->right); 
+    }
 
     void printInorder(node * recursiveNode){ 
         if (recursiveNode == NULL){ //end case
             return; 
         } 
-        /* first recur on left child */
+        //go left
         printInorder(recursiveNode->left); 
     
-        /* then print the data of node */
+        //process current node
         recursiveNode->city.display();
     
-        /* now recur on right child */
+        //go right
         printInorder(recursiveNode->right); 
-    }
+    } 
 };
+
 
 //check if a given file opens
 bool doesFileOpen(ifstream &infile) {
@@ -236,9 +309,34 @@ int main(int argc, char* argv[]){
         }
     }    
 
+    cout << "Database Contents:" << endl;
     cout << "- - - - - - - - - - - - - - - - - - - - - - - - - - - " << endl;
     cityDirectory.printInorder(cityDirectory.root);
     cout << "- - - - - - - - - - - - - - - - - - - - - - - - - - - " << endl;
+
+    int commandInput = 0;
+    int xSearch = 0;
+    int ySearch = 0; 
+    string nameSearch = "";
+    while(commandInput != 3){
+        cout << "Search options: 1 - by City Name, 2 - by Coordinates, 3 - EXIT" << endl;
+        cin >> commandInput;
+        if(commandInput == 1){
+            cout << "Enter a city name: ";
+            cin >> nameSearch;
+            cityDirectory.searchFor(cityDirectory.root, nameSearch);
+        } 
+        if(commandInput == 2){
+            cout << "Enter the city coordinates separated by a space: ";
+            cin >> xSearch;
+            cin >> ySearch;
+            cityDirectory.searchFor(cityDirectory.root, xSearch, ySearch);
+        }
+        cout << "- - - - - - - - - - - - - - - - - - - - - - - - - - - " << endl;
+    }
+    cout << "End of run. " << endl;
+    cout << "- - - - - - - - - - - - - - - - - - - - - - - - - - - " << endl;
+
 
     return 0;
 }
